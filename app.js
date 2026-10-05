@@ -40,6 +40,13 @@ print()
 print(df.describe())`;
 
 
+// Workbench tabs keep independent editor buffers.
+let workbenchTabs = [];
+let activeWorkbenchTabId = null;
+let nextWorkbenchTabNumber = 1;
+let suppressWorkbenchSync = false;
+
+
 // ============================================================
 // DOM ELEMENTS
 // ============================================================
@@ -71,6 +78,8 @@ const openPyInput = document.getElementById("openPyInput");
 const downloadPyButton = document.getElementById("downloadPyButton");
 const autosaveStatus = document.getElementById("autosaveStatus");
 const copyButton = document.getElementById("copyButton");
+const workbenchTabsElement = document.getElementById("workbenchTabs");
+const newWorkbenchTabButton = document.getElementById("newWorkbenchTabButton");
 
 const chooseWorkspaceButton = document.getElementById("chooseWorkspaceButton");
 const reconnectWorkspaceButton = document.getElementById("reconnectWorkspaceButton");
@@ -180,14 +189,137 @@ function initializeEditor() {
 
   editor.session.on(
     "change",
-    scheduleAutosave
+    () => {
+      syncActiveWorkbenchTabFromEditor();
+      scheduleAutosave();
+    }
   );
 
-
+  initializeWorkbenchTabs();
   initializeEditorWindowControls();
 
 }
 
+
+
+// ============================================================
+// WORKBENCH TABS
+// ============================================================
+
+function initializeWorkbenchTabs() {
+  workbenchTabs = [];
+  activeWorkbenchTabId = null;
+  nextWorkbenchTabNumber = 1;
+
+  const scratch = createWorkbenchTab("Scratch 1", DEFAULT_CODE, { activate: true, closable: false });
+  nextWorkbenchTabNumber = 2;
+
+  newWorkbenchTabButton?.addEventListener("click", () => {
+    createWorkbenchTab(`Scratch ${nextWorkbenchTabNumber++}`, "# Write Python code here\n", { activate: true });
+    editor.focus();
+  });
+
+  if (newWorkbenchTabButton) newWorkbenchTabButton.disabled = false;
+  return scratch;
+}
+
+function createWorkbenchTab(name, code = "", options = {}) {
+  const id = `tab-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const tab = {
+    id,
+    name,
+    code,
+    kind: options.kind || "scratch",
+    closable: options.closable !== false
+  };
+  workbenchTabs.push(tab);
+  renderWorkbenchTabs();
+  if (options.activate !== false) activateWorkbenchTab(id);
+  return tab;
+}
+
+function renderWorkbenchTabs() {
+  if (!workbenchTabsElement) return;
+  workbenchTabsElement.innerHTML = "";
+
+  for (const tab of workbenchTabs) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "workbench-tab" + (tab.id === activeWorkbenchTabId ? " active" : "");
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-selected", tab.id === activeWorkbenchTabId ? "true" : "false");
+
+    const label = document.createElement("span");
+    label.textContent = tab.name;
+    button.appendChild(label);
+
+    if (tab.closable) {
+      const close = document.createElement("span");
+      close.className = "workbench-tab-close";
+      close.textContent = "×";
+      close.title = "Close tab";
+      close.addEventListener("click", (event) => {
+        event.stopPropagation();
+        closeWorkbenchTab(tab.id);
+      });
+      button.appendChild(close);
+    }
+
+    button.addEventListener("click", () => activateWorkbenchTab(tab.id));
+    workbenchTabsElement.appendChild(button);
+  }
+}
+
+function syncActiveWorkbenchTabFromEditor() {
+  if (suppressWorkbenchSync || !editor || !activeWorkbenchTabId) return;
+  const tab = workbenchTabs.find(item => item.id === activeWorkbenchTabId);
+  if (tab) tab.code = editor.getValue();
+}
+
+function activateWorkbenchTab(id) {
+  if (!editor) return;
+  syncActiveWorkbenchTabFromEditor();
+  const tab = workbenchTabs.find(item => item.id === id);
+  if (!tab) return;
+
+  activeWorkbenchTabId = id;
+  suppressWorkbenchSync = true;
+  editor.setValue(tab.code || "", -1);
+  suppressWorkbenchSync = false;
+  renderWorkbenchTabs();
+  editor.resize();
+}
+
+function closeWorkbenchTab(id) {
+  const index = workbenchTabs.findIndex(item => item.id === id);
+  if (index < 0 || !workbenchTabs[index].closable) return;
+
+  const wasActive = activeWorkbenchTabId === id;
+  workbenchTabs.splice(index, 1);
+
+  if (wasActive) {
+    const replacement = workbenchTabs[Math.max(0, index - 1)] || workbenchTabs[0];
+    activeWorkbenchTabId = null;
+    if (replacement) activateWorkbenchTab(replacement.id);
+  } else {
+    renderWorkbenchTabs();
+  }
+}
+
+function loadCodeIntoWorkbenchTab(name, code, kind = "example") {
+  syncActiveWorkbenchTabFromEditor();
+
+  let tab = workbenchTabs.find(item => item.kind === kind && kind === "example");
+  if (!tab) {
+    tab = createWorkbenchTab(name, code, { kind, activate: false });
+  } else {
+    tab.name = name;
+    tab.code = code;
+  }
+
+  activateWorkbenchTab(tab.id);
+  return tab;
+}
 
 // ============================================================
 // RESIZABLE / FLOATING EDITOR WINDOW
@@ -5503,6 +5635,8 @@ const exampleDescription = document.getElementById("exampleDescription");
 const exampleTags = document.getElementById("exampleTags");
 const loadExampleButton = document.getElementById("loadExampleButton");
 const runExampleButton = document.getElementById("runExampleButton");
+const exampleCodePreview = document.getElementById("exampleCodePreview");
+const copyExampleButton = document.getElementById("copyExampleButton");
 let exampleCatalog = null;
 let selectedExample = null;
 let selectedExampleModule = "";
@@ -5622,8 +5756,10 @@ function selectExample(module, item) {
   }
   loadExampleButton.disabled = false;
   runExampleButton.disabled = false;
+  if (copyExampleButton) copyExampleButton.disabled = false;
   syncExampleSelectors(module, item);
   renderExampleToc(exampleSearch.value);
+  renderSelectedExamplePreview();
 }
 
 async function fetchSelectedExample() {
@@ -5639,10 +5775,22 @@ async function fetchSelectedExample() {
   return await response.text();
 }
 
+
+async function renderSelectedExamplePreview() {
+  if (!selectedExample || !exampleCodePreview) return;
+  exampleCodePreview.textContent = "Loading example...";
+  try {
+    const code = await fetchSelectedExample();
+    exampleCodePreview.textContent = code;
+  } catch (error) {
+    exampleCodePreview.textContent = `Could not load example:\n${error}`;
+  }
+}
+
 async function loadSelectedExample(runAfterLoad = false) {
   try {
     const code = await fetchSelectedExample();
-    editor.setValue(code, -1);
+    loadCodeIntoWorkbenchTab(`Example: ${selectedExample.title}`, code, "example");
     editor.focus();
     autosaveStatus.textContent = `Loaded example: ${selectedExampleModule} / ${selectedExample.title}`;
     document.getElementById("pythonEditor").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -5659,6 +5807,8 @@ exampleModuleSelect?.addEventListener("change", () => {
   selectedExampleModule = "";
   loadExampleButton.disabled = true;
   runExampleButton.disabled = true;
+  if (copyExampleButton) copyExampleButton.disabled = true;
+  if (exampleCodePreview) exampleCodePreview.textContent = "Choose an example to preview its source code here.";
   if (exampleModuleSelect.value !== "") {
     const module = exampleCatalog.modules[Number(exampleModuleSelect.value)];
     exampleBreadcrumb.textContent = module.name;
@@ -5679,5 +5829,12 @@ exampleCodeSelect?.addEventListener("change", () => {
   if (module && item) selectExample(module, item);
 });
 loadExampleButton?.addEventListener("click", () => loadSelectedExample(false));
+copyExampleButton?.addEventListener("click", async () => {
+  if (!selectedExample) return;
+  const code = await fetchSelectedExample();
+  await navigator.clipboard.writeText(code);
+  copyExampleButton.textContent = "Copied";
+  setTimeout(() => { copyExampleButton.textContent = "Copy"; }, 1200);
+});
 runExampleButton?.addEventListener("click", () => loadSelectedExample(true));
 initializeExampleLibrary();

@@ -808,3 +808,90 @@ body.editor-overlay-active {
 .example-picker select { width: 100%; padding: 9px 10px; border: 1px solid #bbb; border-radius: 5px; background: #fff; font-size: 14px; }
 .example-picker select:disabled { background: #eee; color: #888; }
 @media (max-width: 700px) { .example-picker { grid-template-columns: 1fr; } }
+
+
+/* ============================================================
+   EXAMPLE SOURCE PREVIEW
+   ============================================================ */
+.example-code-panel {
+  margin-top: 18px;
+  border: 1px solid #c8c8c8;
+  border-radius: 7px;
+  overflow: hidden;
+  background: #1e1e1e;
+}
+.example-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  background: #2b2b2b;
+  color: #f5f5f5;
+  border-bottom: 1px solid #444;
+}
+.example-code-preview {
+  margin: 0;
+  padding: 15px;
+  min-height: 180px;
+  max-height: 420px;
+  overflow: auto;
+  background: #1e1e1e;
+  color: #f3f3f3;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre;
+}
+
+/* ============================================================
+   WORKBENCH TABS
+   ============================================================ */
+.workbench-tabs-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  border-bottom: 1px solid #bbb;
+}
+.workbench-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 4px;
+}
+.workbench-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  border: 1px solid #bbb;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: #ececec;
+  color: #333;
+  cursor: pointer;
+  font-size: 13px;
+}
+.workbench-tab.active {
+  background: #1e1e1e;
+  color: #fff;
+  border-color: #1e1e1e;
+}
+.workbench-tab-close {
+  border: 0;
+  padding: 0 2px;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+  opacity: .7;
+  cursor: pointer;
+}
+.workbench-tab-close:hover { opacity: 1; }
+.new-tab-button { margin-bottom: 5px; white-space: nowrap; }
+@media (max-width: 700px) {
+  .workbench-tabs-row { align-items: stretch; flex-direction: column; }
+  .new-tab-button { align-self: flex-start; }
+}

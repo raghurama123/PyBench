@@ -169,8 +169,17 @@
         <h3 id="exampleTitle">Example library</h3>
         <p id="exampleDescription">Examples are grouped under Core Python, NumPy, SciPy, pandas, and Matplotlib.</p>
         <div id="exampleTags" class="example-tags"></div>
+
+        <div class="example-code-panel">
+          <div class="example-code-header">
+            <strong>Example code</strong>
+            <button id="copyExampleButton" class="small-button" disabled>Copy</button>
+          </div>
+          <pre id="exampleCodePreview" class="example-code-preview">Choose an example to preview its source code here.</pre>
+        </div>
+
         <div class="example-actions">
-          <button id="loadExampleButton" disabled>Load into editor</button>
+          <button id="loadExampleButton" disabled>Load into workbench</button>
           <button id="runExampleButton" class="run-button" disabled>▶ Load &amp; run</button>
         </div>
         <div class="storage-note example-source-note">
@@ -186,9 +195,9 @@
   <section class="panel">
     <div class="section-heading editor-heading">
       <div>
-        <h2>3. Python analysis</h2>
+        <h2>3. Python workbench</h2>
         <p>
-          Syntax-highlighted Python editor. The current runtime working directory is
+          Use separate tabs for examples and your own code. The current runtime working directory is
           <code>/data</code>.
         </p>
       </div>
@@ -222,6 +231,11 @@
         <button id="downloadPyButton" disabled>Download .py</button>
         <span id="autosaveStatus" class="autosave-status">Not yet autosaved</span>
       </div>
+    </div>
+
+    <div class="workbench-tabs-row">
+      <div id="workbenchTabs" class="workbench-tabs" role="tablist" aria-label="Workbench files"></div>
+      <button id="newWorkbenchTabButton" class="new-tab-button" disabled>+ New tab</button>
     </div>
 
     <div class="editor-size-toolbar">
@@ -293,36 +307,6 @@
 
     <h3>Available files</h3>
     <div id="generatedFiles" class="file-list"></div>
-  </section>
-
-  <!-- ====================================================== -->
-  <!-- QUICK EXAMPLES -->
-  <!-- ====================================================== -->
-  <section class="panel help-panel">
-    <h2>Quick examples</h2>
-
-    <h3>List available files</h3>
-    <pre class="example-code">import os
-
-print(os.listdir("."))</pre>
-
-    <h3>Read a CSV file</h3>
-    <pre class="example-code">import pandas as pd
-
-df = pd.read_csv("student.csv")
-
-print(df.head())
-print(df.describe())</pre>
-
-    <h3>Plot data</h3>
-    <pre class="example-code">import matplotlib.pyplot as plt
-
-plt.scatter(df["energy"], df["dipole"])
-plt.xlabel("Energy")
-plt.ylabel("Dipole moment")
-plt.tight_layout()
-plt.savefig("plot.pdf", bbox_inches="tight")
-plt.show()</pre>
   </section>
 
 </main>
