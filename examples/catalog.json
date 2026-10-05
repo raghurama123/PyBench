@@ -18,6 +18,18 @@
     {"name":"Matplotlib","slug":"matplotlib","examples":[
       {"title":"Line plot","file":"matplotlib/line_plot.py","description":"Make a labelled line plot. It appears in the Plot panel below the editor.","tags":["plot","labels"]},
       {"title":"Scatter plot","file":"matplotlib/scatter_plot.py","description":"Create a scatter plot from NumPy arrays.","tags":["scatter","numpy"]}
-    ]}
+    ]},
+{
+  "name": "Scikit-learn",
+  "slug": "scikit-learn",
+  "examples": [
+    {
+      "title": "Linear regression",
+      "file": "scikit-learn/linear_regression.py",
+      "description": "Fit a simple linear regression model using scikit-learn and use it to make predictions.",
+      "tags": ["linear regression", "machine learning", "regression", "numpy", "sklearn"]
+    }
+  ]
+}
   ]
 }

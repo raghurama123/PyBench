@@ -113,6 +113,24 @@ window.PY_EXAMPLE_BUNDLE = {
             ]
           }
         ]
+      },
+      {
+        "name": "Scikit-learn",
+        "slug": "scikit-learn",
+        "examples": [
+          {
+            "title": "Linear regression",
+            "file": "scikit-learn/linear_regression.py",
+            "description": "Fit a simple linear regression model using scikit-learn and use it to make predictions.",
+            "tags": [
+              "linear regression",
+              "machine learning",
+              "regression",
+              "numpy",
+              "sklearn"
+            ]
+          }
+        ]
       }
     ]
   },
@@ -125,6 +143,7 @@ window.PY_EXAMPLE_BUNDLE = {
     "scipy/curve_fit.py": "import numpy as np\nfrom scipy.optimize import curve_fit\n\nx = np.array([0, 1, 2, 3, 4], dtype=float)\ny = np.array([1.1, 2.9, 5.2, 6.8, 9.1])\n\ndef line(x, m, c):\n    return m*x + c\n\nparams, covariance = curve_fit(line, x, y)\nprint(\"slope, intercept =\", params)\n",
     "pandas/dataframe_basics.py": "import pandas as pd\n\ndata = {\n    \"student\": [\"A\", \"B\", \"C\", \"D\"],\n    \"score\": [72, 85, 91, 68],\n    \"hours\": [3.0, 4.5, 5.0, 2.5]\n}\n\ndf = pd.DataFrame(data)\nprint(df)\nprint(\"\\nSummary:\")\nprint(df.describe(numeric_only=True))\nprint(\"\\nScores >= 80:\")\nprint(df[df[\"score\"] >= 80])\n",
     "matplotlib/line_plot.py": "import numpy as np\nimport matplotlib.pyplot as plt\n\nx = np.linspace(0, 2*np.pi, 200)\ny = np.sin(x)\n\nplt.plot(x, y)\nplt.xlabel(\"x\")\nplt.ylabel(\"sin(x)\")\nplt.title(\"A simple sine curve\")\nplt.tight_layout()\nplt.show()\n",
-    "matplotlib/scatter_plot.py": "import numpy as np\nimport matplotlib.pyplot as plt\n\nx = np.arange(1, 11)\ny = np.array([2.1, 3.8, 6.2, 7.7, 10.4, 11.8, 14.1, 16.3, 17.8, 20.2])\n\nplt.scatter(x, y)\nplt.xlabel(\"x\")\nplt.ylabel(\"y\")\nplt.title(\"Scatter plot\")\nplt.tight_layout()\nplt.show()\n"
+    "matplotlib/scatter_plot.py": "import numpy as np\nimport matplotlib.pyplot as plt\n\nx = np.arange(1, 11)\ny = np.array([2.1, 3.8, 6.2, 7.7, 10.4, 11.8, 14.1, 16.3, 17.8, 20.2])\n\nplt.scatter(x, y)\nplt.xlabel(\"x\")\nplt.ylabel(\"y\")\nplt.title(\"Scatter plot\")\nplt.tight_layout()\nplt.show()\n",
+    "scikit-learn/linear_regression.py": "from sklearn.linear_model import LinearRegression\nimport numpy as np\n\nX = np.array([[1], [2], [3], [4], [5]])\ny = np.array([2.1, 4.0, 6.2, 8.1, 10.2])\n\nmodel = LinearRegression()\nmodel.fit(X, y)\n\nprint(\"Slope:\", model.coef_[0])\nprint(\"Intercept:\", model.intercept_)\nprint(\"Prediction for x=6:\", model.predict([[6]])[0])\n\n"
   }
 };
