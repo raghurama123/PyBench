@@ -1,0 +1,23 @@
+{
+  "modules": [
+    {"name":"Core Python","slug":"core","examples":[
+      {"title":"Variables, lists and loops","file":"core/variables_lists_loops.py","description":"A compact introduction to values, lists, loops and formatted output.","tags":["variables","lists","loops"]},
+      {"title":"Functions","file":"core/functions.py","description":"Define and call a function, including a default argument.","tags":["functions","arguments"]}
+    ]},
+    {"name":"NumPy","slug":"numpy","examples":[
+      {"title":"Arrays and vectorized operations","file":"numpy/arrays.py","description":"Create arrays and compare vectorized expressions with scalar-style thinking.","tags":["array","vectorization"]},
+      {"title":"Linear algebra","file":"numpy/linear_algebra.py","description":"Solve a small system of simultaneous linear equations.","tags":["linalg","solve"]}
+    ]},
+    {"name":"SciPy","slug":"scipy","examples":[
+      {"title":"Numerical integration","file":"scipy/integration.py","description":"Use scipy.integrate.quad to evaluate a definite integral.","tags":["integrate","quad"]},
+      {"title":"Curve fitting","file":"scipy/curve_fit.py","description":"Fit a straight line to noisy data with scipy.optimize.curve_fit.","tags":["optimize","fit"]}
+    ]},
+    {"name":"pandas","slug":"pandas","examples":[
+      {"title":"Create and inspect a DataFrame","file":"pandas/dataframe_basics.py","description":"Construct a DataFrame and inspect columns, summary statistics and filtered rows.","tags":["DataFrame","describe","filter"]}
+    ]},
+    {"name":"Matplotlib","slug":"matplotlib","examples":[
+      {"title":"Line plot","file":"matplotlib/line_plot.py","description":"Make a labelled line plot. It appears in the Plot panel below the editor.","tags":["plot","labels"]},
+      {"title":"Scatter plot","file":"matplotlib/scatter_plot.py","description":"Create a scatter plot from NumPy arrays.","tags":["scatter","numpy"]}
+    ]}
+  ]
+}
