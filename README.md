@@ -132,3 +132,7 @@ Thus, adding teaching material generally requires only:
 3. Run python build_examples.py.
 4. Reload PyPLab.
 ```
+
+## Pyodide version 
+PyPLab currently uses Pyodide 314.0.7 via a version-pinned jsDelivr CDN.
+This version is intentionally fixed for reproducibility.
