@@ -895,3 +895,36 @@ body.editor-overlay-active {
   .workbench-tabs-row { align-items: stretch; flex-direction: column; }
   .new-tab-button { align-self: flex-start; }
 }
+
+
+/* ============================================================
+   EXAMPLE LIBRARY — simplified full-width preview
+   ============================================================ */
+.example-library-layout {
+  display: block;
+  margin-top: 18px;
+}
+.example-details {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+}
+.example-code-panel {
+  width: 100%;
+}
+.example-code-preview {
+  width: 100%;
+  height: 360px;
+  min-height: 240px;
+  max-height: none;
+  padding: 0;
+  overflow: hidden;
+  background: #272822;
+  color: #f8f8f2;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+@media (max-width: 700px) {
+  .example-code-preview { height: 300px; }
+}

@@ -142,7 +142,6 @@
         <h2>Example library</h2>
         <p>Choose a module and example. The source is loaded from an ordinary <code>.py</code> file into the editor, where you can modify and run it.</p>
       </div>
-      <input id="exampleSearch" class="example-search" type="search" placeholder="Search examples...">
     </div>
 
     <div class="example-picker" aria-label="Example navigation">
@@ -161,9 +160,6 @@
     </div>
 
     <div class="example-library-layout">
-      <nav id="exampleToc" class="example-toc" aria-label="Python example table of contents">
-        <p class="muted">Loading examples...</p>
-      </nav>
       <div class="example-details">
         <div class="example-breadcrumb" id="exampleBreadcrumb">Select an example</div>
         <h3 id="exampleTitle">Example library</h3>
@@ -175,7 +171,7 @@
             <strong>Example code</strong>
             <button id="copyExampleButton" class="small-button" disabled>Copy</button>
           </div>
-          <pre id="exampleCodePreview" class="example-code-preview">Choose an example to preview its source code here.</pre>
+          <div id="exampleCodePreview" class="example-code-preview" aria-label="Read-only Python example preview"></div>
         </div>
 
         <div class="example-actions">

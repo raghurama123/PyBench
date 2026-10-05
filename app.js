@@ -5625,8 +5625,6 @@ initializePython();
 // EXAMPLE LIBRARY
 // Content lives in examples/catalog.json + ordinary .py files.
 // ============================================================
-const exampleToc = document.getElementById("exampleToc");
-const exampleSearch = document.getElementById("exampleSearch");
 const exampleModuleSelect = document.getElementById("exampleModuleSelect");
 const exampleCodeSelect = document.getElementById("exampleCodeSelect");
 const exampleBreadcrumb = document.getElementById("exampleBreadcrumb");
@@ -5640,6 +5638,7 @@ const copyExampleButton = document.getElementById("copyExampleButton");
 let exampleCatalog = null;
 let selectedExample = null;
 let selectedExampleModule = "";
+let examplePreviewEditor = null;
 
 async function initializeExampleLibrary() {
   // Preferred path: generated bundle.js. This works from GitHub Pages,
@@ -5647,7 +5646,7 @@ async function initializeExampleLibrary() {
   if (window.PY_EXAMPLE_BUNDLE?.catalog) {
     exampleCatalog = window.PY_EXAMPLE_BUNDLE.catalog;
     populateExampleModuleSelect();
-    renderExampleToc();
+    initializeExamplePreviewEditor();
     return;
   }
 
@@ -5657,9 +5656,10 @@ async function initializeExampleLibrary() {
     if (!response.ok) throw new Error(`catalog.json: HTTP ${response.status}`);
     exampleCatalog = await response.json();
     populateExampleModuleSelect();
-    renderExampleToc();
+    initializeExamplePreviewEditor();
   } catch (error) {
-    exampleToc.innerHTML = `<p class="muted">Could not load the example catalog.<br>${escapeHTML(error.toString())}</p>`;
+    exampleTitle.textContent = "Could not load examples";
+    exampleDescription.textContent = error.toString();
   }
 }
 
@@ -5703,44 +5703,6 @@ function syncExampleSelectors(module, item) {
   if (exampleIndex >= 0) exampleCodeSelect.value = String(exampleIndex);
 }
 
-function renderExampleToc(filter = "") {
-  if (!exampleCatalog) return;
-  const query = filter.trim().toLowerCase();
-  exampleToc.innerHTML = "";
-  let count = 0;
-
-  for (const module of exampleCatalog.modules) {
-    const matches = module.examples.filter(item => {
-      const haystack = [module.name, item.title, item.description, ...(item.tags || [])].join(" ").toLowerCase();
-      return !query || haystack.includes(query);
-    });
-    if (!matches.length) continue;
-    count += matches.length;
-
-    const group = document.createElement("div");
-    group.className = "example-module";
-    const heading = document.createElement("button");
-    heading.className = "example-module-title";
-    heading.textContent = `${module.name} (${matches.length})`;
-    const list = document.createElement("ul");
-    list.className = "example-list";
-
-    for (const item of matches) {
-      const li = document.createElement("li");
-      const button = document.createElement("button");
-      button.textContent = item.title;
-      if (selectedExample?.file === item.file) button.classList.add("active");
-      button.addEventListener("click", () => selectExample(module, item));
-      li.appendChild(button);
-      list.appendChild(li);
-    }
-    heading.addEventListener("click", () => { list.hidden = !list.hidden; });
-    group.append(heading, list);
-    exampleToc.appendChild(group);
-  }
-  if (!count) exampleToc.innerHTML = '<p class="muted">No matching examples.</p>';
-}
-
 function selectExample(module, item) {
   selectedExample = item;
   selectedExampleModule = module.name;
@@ -5758,7 +5720,6 @@ function selectExample(module, item) {
   runExampleButton.disabled = false;
   if (copyExampleButton) copyExampleButton.disabled = false;
   syncExampleSelectors(module, item);
-  renderExampleToc(exampleSearch.value);
   renderSelectedExamplePreview();
 }
 
@@ -5776,14 +5737,43 @@ async function fetchSelectedExample() {
 }
 
 
+function initializeExamplePreviewEditor() {
+  if (examplePreviewEditor || !exampleCodePreview || typeof ace === "undefined") return;
+
+  examplePreviewEditor = ace.edit("exampleCodePreview");
+  examplePreviewEditor.setTheme("ace/theme/monokai");
+  examplePreviewEditor.session.setMode("ace/mode/python");
+  examplePreviewEditor.session.setUseSoftTabs(true);
+  examplePreviewEditor.session.setTabSize(4);
+  examplePreviewEditor.session.setUseWrapMode(false);
+  examplePreviewEditor.setReadOnly(true);
+  examplePreviewEditor.setShowPrintMargin(false);
+  examplePreviewEditor.setHighlightActiveLine(false);
+  examplePreviewEditor.setHighlightGutterLine(false);
+  examplePreviewEditor.setOptions({
+    fontSize: "14px",
+    showLineNumbers: true,
+    showGutter: true,
+    highlightSelectedWord: false,
+    displayIndentGuides: true
+  });
+  examplePreviewEditor.renderer.$cursorLayer.element.style.display = "none";
+  examplePreviewEditor.setValue("Choose an example to preview its source code here.", -1);
+}
+
 async function renderSelectedExamplePreview() {
   if (!selectedExample || !exampleCodePreview) return;
-  exampleCodePreview.textContent = "Loading example...";
+  initializeExamplePreviewEditor();
+  if (!examplePreviewEditor) return;
+  examplePreviewEditor.setValue("Loading example...", -1);
   try {
     const code = await fetchSelectedExample();
-    exampleCodePreview.textContent = code;
+    examplePreviewEditor.setValue(code, -1);
+    examplePreviewEditor.clearSelection();
+    examplePreviewEditor.scrollToLine(1, true, false, function() {});
+    examplePreviewEditor.resize();
   } catch (error) {
-    exampleCodePreview.textContent = `Could not load example:\n${error}`;
+    examplePreviewEditor.setValue(`Could not load example:\n${error}`, -1);
   }
 }
 
@@ -5800,7 +5790,6 @@ async function loadSelectedExample(runAfterLoad = false) {
   }
 }
 
-exampleSearch?.addEventListener("input", () => renderExampleToc(exampleSearch.value));
 exampleModuleSelect?.addEventListener("change", () => {
   populateExampleCodeSelect(exampleModuleSelect.value);
   selectedExample = null;
@@ -5808,7 +5797,8 @@ exampleModuleSelect?.addEventListener("change", () => {
   loadExampleButton.disabled = true;
   runExampleButton.disabled = true;
   if (copyExampleButton) copyExampleButton.disabled = true;
-  if (exampleCodePreview) exampleCodePreview.textContent = "Choose an example to preview its source code here.";
+  initializeExamplePreviewEditor();
+  if (examplePreviewEditor) examplePreviewEditor.setValue("Choose an example to preview its source code here.", -1);
   if (exampleModuleSelect.value !== "") {
     const module = exampleCatalog.modules[Number(exampleModuleSelect.value)];
     exampleBreadcrumb.textContent = module.name;
