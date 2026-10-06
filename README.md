@@ -1,8 +1,8 @@
-# PyPLab
+# PyBench
 
-**PyPLab** is a browser-based interactive environment for learning and practicing Python programming.
+**PyBench** is a browser-based interactive environment for coding and practicing Python programming.
 
-It provides ready-to-run examples organized by module and allows students to load an example into the editor, modify the code, run it directly in the browser, and inspect the output.
+It provides ready-to-run examples organized by module, allowing students to load an example into the editor, modify the code, run it directly in the browser, and inspect the output.
 
 The current example library includes:
 
@@ -12,7 +12,7 @@ The current example library includes:
 - pandas
 - Matplotlib
 
-PyPLab can also be used as a lightweight Python workbench for writing and running your own code. Python runs locally in the browser using Pyodide, so no local Python installation is required.
+PyBench can also be used as a lightweight Python workbench for writing and running your own code. Python runs locally in the browser using Pyodide, so no local Python installation is required.
 
 ## Adding a New Example
 
