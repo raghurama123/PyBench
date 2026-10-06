@@ -111,6 +111,21 @@ main {
   font-size: 21px;
 }
 
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.panel-header h2 {
+  margin-bottom: 0;
+}
+
+.panel-header .editor-buttons {
+  margin: 0;
+}
+
 .panel h3 {
   margin-top: 28px;
   font-size: 17px;

@@ -29,15 +29,8 @@ const LOCAL_DIRS = {
 
 const AUTOSAVE_LOCAL_FILE = "_autosave.json";
 
-const DEFAULT_CODE = `import pandas as pd
-import numpy as np
-
-# Replace "data.csv" with your uploaded filename
-df = pd.read_csv("data.csv")
-
-print(df.head())
-print()
-print(df.describe())`;
+const DEFAULT_CODE = `# Write Python code here
+print("Hello from PyPLab!")`;
 
 
 // Workbench tabs keep independent editor buffers.
@@ -65,8 +58,6 @@ const clearAllButton = document.getElementById("clearAllButton");
 const downloadFilename = document.getElementById("downloadFilename");
 const downloadButton = document.getElementById("downloadButton");
 const generatedFiles = document.getElementById("generatedFiles");
-const exampleButton = document.getElementById("exampleButton");
-const plotExampleButton = document.getElementById("plotExampleButton");
 const clearButton = document.getElementById("clearButton");
 
 const sessionSelect = document.getElementById("sessionSelect");
@@ -2610,20 +2601,9 @@ async function initializePython() {
 
 
     pyodide =
-      await loadPyodide();
-
-
-    statusElement.textContent =
-      "Loading scientific packages...";
-
-
-    await pyodide.loadPackage([
-      "numpy",
-      "pandas",
-      "matplotlib",
-      "scipy",
-      "scikit-learn"
-    ]);
+      await loadPyodide({
+        indexURL: "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/"
+      });
 
 
     ensureDirectory(
@@ -2662,16 +2642,6 @@ async function initializePython() {
 
     await pyodide.runPythonAsync(`
 import os
-import sys
-import io
-import traceback
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import scipy 
-import sklearn
-
 os.chdir("/data")
     `);
 
@@ -2754,8 +2724,6 @@ function enableControls() {
     clearAllButton,
     downloadFilename,
     downloadButton,
-    exampleButton,
-    plotExampleButton,
     clearButton,
     sessionSelect,
     newSessionButton,
@@ -4656,6 +4624,32 @@ clearAllButton.addEventListener(
 
 
 // ============================================================
+// LAZY PACKAGE LOADING
+// ============================================================
+
+async function loadPackagesForCode(code, message = "Loading required packages...") {
+
+  if (!pyodide || !code) return;
+
+  const previousText = statusElement.textContent;
+  const previousClass = statusElement.className;
+
+  try {
+    statusElement.textContent = message;
+    statusElement.className = "status loading";
+
+    // Pyodide inspects Python imports and downloads only packages
+    // that are not already present in the current runtime.
+    await pyodide.loadPackagesFromImports(code);
+  }
+  finally {
+    statusElement.textContent = previousText === "Python ready" ? "Python ready" : previousText;
+    statusElement.className = previousClass.includes("ready") ? "status ready" : previousClass;
+  }
+}
+
+
+// ============================================================
 // PREVIEW CSV / TSV / TXT / DAT
 // ============================================================
 
@@ -4680,6 +4674,11 @@ previewButton.addEventListener(
 
     try {
 
+      await loadPackagesForCode(
+        "import pandas",
+        "Loading pandas..."
+      );
+
       pyodide.globals.set(
         "_preview_filename",
         filename
@@ -4688,19 +4687,19 @@ previewButton.addEventListener(
 
       const html =
         await pyodide.runPythonAsync(`
-import pandas as pd
+import pandas
 import os
 
 filename = _preview_filename
 extension = os.path.splitext(filename)[1].lower()
 
 if extension == ".tsv":
-    df_preview = pd.read_csv(filename, sep="\\t")
+    df_preview = pandas.read_csv(filename, sep="\\t")
 else:
     try:
-        df_preview = pd.read_csv(filename)
+        df_preview = pandas.read_csv(filename)
     except Exception:
-        df_preview = pd.read_csv(filename, sep=None, engine="python")
+        df_preview = pandas.read_csv(filename, sep=None, engine="python")
 
 df = df_preview.copy()
 
@@ -4812,9 +4811,15 @@ async function runPython() {
 
   try {
 
+    await loadPackagesForCode(
+      code,
+      "Loading packages required by this code..."
+    );
+
     await pyodide.runPythonAsync(`
-import matplotlib.pyplot as plt
-plt.close("all")
+import sys
+if "matplotlib.pyplot" in sys.modules:
+    sys.modules["matplotlib.pyplot"].close("all")
     `);
 
 
@@ -4930,8 +4935,8 @@ async function displayMatplotlibPlot() {
 
     const numberOfFigures =
       await pyodide.runPythonAsync(`
-import matplotlib.pyplot as plt
-len(plt.get_fignums())
+import sys
+len(sys.modules["matplotlib.pyplot"].get_fignums()) if "matplotlib.pyplot" in sys.modules else 0
       `);
 
 
@@ -4948,8 +4953,8 @@ len(plt.get_fignums())
 
 
     await pyodide.runPythonAsync(`
-import matplotlib.pyplot as plt
-
+import sys
+plt = sys.modules["matplotlib.pyplot"]
 fig = plt.gcf()
 
 fig.savefig(
@@ -5492,99 +5497,6 @@ clearButton.addEventListener(
 
     plotArea.innerHTML =
       '<p class="muted">No plot.</p>';
-
-  }
-);
-
-
-// ============================================================
-// CSV EXAMPLE
-// ============================================================
-
-exampleButton.addEventListener(
-  "click",
-  function () {
-
-    editor.setValue(
-`import pandas as pd
-import numpy as np
-
-# Replace this with one of your stored files
-df = pd.read_csv("student.csv")
-
-print("Shape:")
-print(df.shape)
-
-print("\\nColumns:")
-print(df.columns.tolist())
-
-print("\\nFirst five rows:")
-print(df.head())
-
-print("\\nSummary statistics:")
-print(df.describe())`,
-      -1
-    );
-
-  }
-);
-
-
-// ============================================================
-// PLOT EXAMPLE
-// ============================================================
-
-plotExampleButton.addEventListener(
-  "click",
-  function () {
-
-    editor.setValue(
-`import pandas as pd
-import matplotlib.pyplot as plt
-
-df = pd.read_csv("student.csv")
-
-x = df.iloc[:, 0]
-y = df.iloc[:, 1]
-
-plt.figure(figsize=(7, 5))
-
-plt.scatter(
-    x,
-    y
-)
-
-plt.xlabel(
-    df.columns[0]
-)
-
-plt.ylabel(
-    df.columns[1]
-)
-
-plt.title(
-    f"{df.columns[1]} vs {df.columns[0]}"
-)
-
-plt.tight_layout()
-
-# With a local workspace connected, newly created files
-# are synchronized to its output/ folder after the run.
-
-plt.savefig(
-    "analysis_plot.pdf",
-    bbox_inches="tight"
-)
-
-plt.savefig(
-    "analysis_plot.png",
-    dpi=300,
-    bbox_inches="tight"
-)
-
-plt.show()`,
-      -1
-    );
 
   }
 );

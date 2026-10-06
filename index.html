@@ -140,7 +140,6 @@
     <div class="section-heading">
       <div>
         <h2>Example library</h2>
-        <p>Choose a module and example. The source is loaded from an ordinary <code>.py</code> file into the editor, where you can modify and run it.</p>
       </div>
     </div>
 
@@ -163,7 +162,7 @@
       <div class="example-details">
         <div class="example-breadcrumb" id="exampleBreadcrumb">Select an example</div>
         <h3 id="exampleTitle">Example library</h3>
-        <p id="exampleDescription">Examples are grouped under Core Python, NumPy, SciPy, pandas, and Matplotlib.</p>
+        <p id="exampleDescription" class="muted">Choose a module and an example.</p>
         <div id="exampleTags" class="example-tags"></div>
 
         <div class="example-code-panel">
@@ -178,9 +177,9 @@
           <button id="loadExampleButton" disabled>Load into workbench</button>
           <button id="runExampleButton" class="run-button" disabled>▶ Load &amp; run</button>
         </div>
-        <div class="storage-note example-source-note">
+       <!-- <div class="storage-note example-source-note">
           <strong>Easy maintenance:</strong> put Python files under <code>examples/</code> and register them in <code>examples/catalog.json</code>. No JavaScript editing is needed.
-        </div>
+        </div> -->
       </div>
     </div>
   </section>
@@ -198,11 +197,13 @@
         </p>
       </div>
 
+      <!--
       <div class="editor-buttons">
         <button id="exampleButton" disabled>CSV example</button>
         <button id="plotExampleButton" disabled>Plot example</button>
         <button id="clearButton" disabled>Clear output</button>
       </div>
+      -->
     </div>
 
     <div class="session-toolbar">
@@ -271,10 +272,17 @@
   <!-- ====================================================== -->
   <!-- OUTPUT -->
   <!-- ====================================================== -->
-  <section class="panel">
+<section class="panel">
+  <div class="panel-header">
     <h2>4. Output</h2>
-    <pre id="output">Python is loading...</pre>
-  </section>
+
+    <div class="editor-buttons">
+      <button id="clearButton" disabled>Clear output</button>
+    </div>
+  </div>
+
+  <pre id="output">Python is loading...</pre>
+</section>
 
   <!-- ====================================================== -->
   <!-- PLOT -->
